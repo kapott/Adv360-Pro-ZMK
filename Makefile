@@ -1,6 +1,10 @@
 DOCKER := $(shell { command -v podman || command -v docker; })
 TIMESTAMP := $(shell date -u +"%Y%m%d%H%M")
 COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null)
+# ZMK Studio saves per-key bindings to NVS and replays them over the compiled
+# keymap at boot, so a key remapped in Clique survives a firmware update and
+# overrides config/adv360.keymap. BUILD_STUDIO=false compiles that out.
+BUILD_STUDIO ?= true
 ifeq ($(shell uname),Darwin)
 SELINUX1 :=
 SELINUX2 :=
@@ -20,6 +24,7 @@ all:
 		-e TIMESTAMP=$(TIMESTAMP) \
 		-e COMMIT=$(COMMIT) \
 		-e BUILD_RIGHT=true \
+		-e BUILD_STUDIO=$(BUILD_STUDIO) \
 		zmk
 	git checkout config/version.dtsi
 
@@ -32,6 +37,7 @@ left:
 		-e TIMESTAMP=$(TIMESTAMP) \
 		-e COMMIT=$(COMMIT) \
 		-e BUILD_RIGHT=false \
+		-e BUILD_STUDIO=$(BUILD_STUDIO) \
 		zmk
 	git checkout config/version.dtsi
 
